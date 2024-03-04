@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../views/ViewEntry.dart';
 
 class JournalEntry extends StatelessWidget {
   final String title;
@@ -22,7 +23,28 @@ class JournalEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return ListTile(
+      title: Column(
+        children: [
+          Row(children: [
+            Flexible(
+                child:
+                    Text(title, style: TextStyle(fontWeight: FontWeight.bold))),
+          ]),
+          Row(
+            children: [Flexible(child: Text(date))],
+          )
+        ],
+      ),
+      onTap: () {
+        // Handle the tap action
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ViewEntry(title: title, body: body, date: date)));
+      },
+    );
   }
 
   // Convert a JournalEntry object into a Map

@@ -96,9 +96,21 @@ class _MyHomePage extends State<MyHomePage> {
   Widget build(BuildContext context) {
     if (_isSwitched == null) {
       return CircularProgressIndicator();
+    } else if (_journalEntries.isEmpty) {
+      return Scaffold(
+        appBar: _journalAppBar(),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+                child: Icon(Icons.book,
+                    size: MediaQuery.of(context).size.height * 0.4)),
+            Center(child: Text("Journal"))
+          ],
+        ),
+        floatingActionButton: newEntryRoute(context),
+      );
     }
-    print(
-        "\n\n\n\n\nJournal Entries Length: ${_journalEntries.length}\n\n\n\n\n");
     return MaterialApp(
       theme: ThemeData(
         // Define the default brightness and colors.
@@ -118,29 +130,26 @@ class _MyHomePage extends State<MyHomePage> {
             itemCount: _journalEntries.length, // Example item count
             itemBuilder: (context, index) {
               final entry = _journalEntries[index];
-              return ListTile(
-                title: Text(entry.title),
-                leading: Text(entry.body),
-                onTap: () {
-                  // Handle the tap action
-                },
-              );
+              return entry;
             },
           ),
           endDrawer: _endDrawer(context),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                CupertinoPageRoute(
-                    builder: (context) =>
-                        NewPage(_isSwitched, onNewEntryAdded)),
-              );
-            },
-            child: Icon(Icons.add),
-            backgroundColor: Colors.blue,
-            shape: CircleBorder(),
-          )),
+          floatingActionButton: newEntryRoute(context)),
+    );
+  }
+
+  FloatingActionButton newEntryRoute(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          CupertinoPageRoute(
+              builder: (context) => NewPage(_isSwitched, onNewEntryAdded)),
+        );
+      },
+      child: Icon(Icons.add),
+      backgroundColor: Colors.blue,
+      shape: CircleBorder(),
     );
   }
 
