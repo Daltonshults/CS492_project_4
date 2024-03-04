@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/cupertino.dart';
-
 import './views/FormPage.dart';
+import './helpers/databaseHelper.dart';
+import './models/journalModel.dart';
 
+final DatabaseHelper dbHelper = DatabaseHelper.instance;
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
@@ -57,31 +59,6 @@ class _MyAppState extends State<MyApp> {
     return prefs.getBool('darkMode') ?? false;
   }
 }
-// class _MyAppState extends State<MyApp> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Journal App',
-//       theme: lightTheme(),
-//       darkTheme: darkTheme(),
-//       home: MyHomePage(),
-//     );
-//   }
-
-//   ThemeData lightTheme() {
-//     return ThemeData(
-//       brightness: Brightness.light,
-//       primaryColor: Colors.blue,
-//     );
-//   }
-
-//   ThemeData darkTheme() {
-//     return ThemeData(
-//       brightness: Brightness.dark,
-//       primaryColor: Colors.lightBlue[800],
-//     );
-//   }
-// }
 
 class MyHomePage extends StatefulWidget {
   bool? _isSwitched;
@@ -95,6 +72,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePage extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool? _isSwitched;
+  List<JournalEntry> _journalEntries = [];
 
   @override
   void initState() {
@@ -102,6 +80,12 @@ class _MyHomePage extends State<MyHomePage> {
     _loadSwitchPreferences().then((value) => setState(() {
           _isSwitched = value;
         }));
+    dbHelper.queryAllRows().then((entries) {
+      setState(() {
+        _journalEntries = entries;
+      });
+    });
+    dbHelper.printAllRows();
   }
 
   void _openEndDrawer() {
@@ -113,6 +97,8 @@ class _MyHomePage extends State<MyHomePage> {
     if (_isSwitched == null) {
       return CircularProgressIndicator();
     }
+    print(
+        "\n\n\n\n\nJournal Entries Length: ${_journalEntries.length}\n\n\n\n\n");
     return MaterialApp(
       theme: ThemeData(
         // Define the default brightness and colors.
@@ -129,11 +115,12 @@ class _MyHomePage extends State<MyHomePage> {
           key: _scaffoldKey,
           appBar: _journalAppBar(),
           body: ListView.builder(
-            itemCount: 20, // Example item count
+            itemCount: _journalEntries.length, // Example item count
             itemBuilder: (context, index) {
+              final entry = _journalEntries[index];
               return ListTile(
-                title: Text('Item $index'),
-                leading: Icon(Icons.label),
+                title: Text(entry.title),
+                leading: Text(entry.body),
                 onTap: () {
                   // Handle the tap action
                 },
@@ -145,10 +132,10 @@ class _MyHomePage extends State<MyHomePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                CupertinoPageRoute(builder: (context) => NewPage(_isSwitched)),
+                CupertinoPageRoute(
+                    builder: (context) =>
+                        NewPage(_isSwitched, onNewEntryAdded)),
               );
-              // Add your onPressed code here!
-              setState(() {});
             },
             child: Icon(Icons.add),
             backgroundColor: Colors.blue,
@@ -252,5 +239,13 @@ class _MyHomePage extends State<MyHomePage> {
   Future<bool> _loadSwitchPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getBool('darkMode') ?? false;
+  }
+
+  void onNewEntryAdded() {
+    dbHelper.queryAllRows().then((entries) {
+      setState(() {
+        _journalEntries = entries;
+      });
+    });
   }
 }

@@ -1,35 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:project_4/helpers/databaseHelper.dart';
+import 'package:project_4/models/journalModel.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/services.dart';
-
-// class NewPage extends StatelessWidget {
-//   final _formKey = GlobalKey<FormState>();
-//   final bool? _theme;
-
-//   NewPage(this._theme);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         centerTitle: true,
-//         backgroundColor: Colors.blue,
-//         title: Text(
-//           'New Page',
-//           style: TextStyle(color: Colors.white),
-//         ),
-//       ),
-//       body: Center(
-//         child: Text('This is a new page'),
-//       ),
-//     );
-//   }
-// }
+import 'package:intl/intl.dart';
 
 class NewPage extends StatefulWidget {
   final bool? _theme;
+  final Function onNewEntryAdded;
 
-  NewPage(this._theme, {super.key});
+  NewPage(this._theme, this.onNewEntryAdded, {super.key});
 
   @override
   _NewPageState createState() => _NewPageState();
@@ -53,7 +33,9 @@ class _NewPageState extends State<NewPage> {
           ),
         ),
         body: Center(
-          child: MyJournalForm(),
+          child: MyJournalForm(
+            onNewEntryAdded: widget.onNewEntryAdded,
+          ),
         ),
       ),
     );
@@ -61,7 +43,8 @@ class _NewPageState extends State<NewPage> {
 }
 
 class MyJournalForm extends StatefulWidget {
-  MyJournalForm({super.key});
+  final Function onNewEntryAdded;
+  MyJournalForm({super.key, required this.onNewEntryAdded});
 
   @override
   State<MyJournalForm> createState() => _MyJournalFormState();
@@ -69,6 +52,17 @@ class MyJournalForm extends StatefulWidget {
 
 class _MyJournalFormState extends State<MyJournalForm> {
   final _formKey = GlobalKey<FormState>();
+  final titleController = TextEditingController();
+  final bodyController = TextEditingController();
+  final ratingController = TextEditingController();
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    bodyController.dispose();
+    ratingController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +83,7 @@ class _MyJournalFormState extends State<MyJournalForm> {
             Padding(
               padding: EdgeInsets.only(top: hPadding, bottom: hPadding),
               child: TextFormField(
+                controller: titleController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Title',
@@ -104,6 +99,7 @@ class _MyJournalFormState extends State<MyJournalForm> {
             Padding(
               padding: EdgeInsets.only(top: hPadding, bottom: hPadding),
               child: TextFormField(
+                controller: bodyController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Body',
@@ -119,6 +115,7 @@ class _MyJournalFormState extends State<MyJournalForm> {
             Padding(
               padding: EdgeInsets.only(top: hPadding, bottom: hPadding),
               child: TextFormField(
+                controller: ratingController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Rating (1-4)',
@@ -131,7 +128,7 @@ class _MyJournalFormState extends State<MyJournalForm> {
                       return newValue;
                     }
                     final int potentialNewValue = int.parse(newValue.text);
-                    if (potentialNewValue >= 1 && potentialNewValue <= 5) {
+                    if (potentialNewValue >= 1 && potentialNewValue <= 4) {
                       return newValue;
                     } else {
                       return oldValue;
@@ -158,15 +155,9 @@ class _MyJournalFormState extends State<MyJournalForm> {
                   padding: EdgeInsets.only(left: wPadding, right: wPadding),
                   child: ElevatedButton(
                     onPressed: () {
-                      // Validate returns true if the form is valid, or false otherwise.
-                      if (_formKey.currentState?.validate() == true) {
-                        // If the form is valid, display a Snackbar.
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Processing Data')),
-                        );
-                      }
+                      Navigator.pop(context);
                     },
-                    child: Text('Submit'),
+                    child: Text('Cancel'),
                     style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder()),
                   ),
@@ -175,14 +166,26 @@ class _MyJournalFormState extends State<MyJournalForm> {
                   padding: EdgeInsets.only(left: wPadding, right: wPadding),
                   child: Align(
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         // Validate returns true if the form is valid, or false otherwise.
                         if (_formKey.currentState?.validate() == true) {
                           // If the form is valid, display a Snackbar.
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Processing Data')),
-                          );
+                          JournalEntry entry = JournalEntry(
+                              title: titleController.text,
+                              body: bodyController.text,
+                              rating: int.parse(ratingController.text),
+                              date: DateFormat('EEEE, MMMM d, yyyy')
+                                  .format(DateTime.now()));
+
+                          final DatabaseHelper db = DatabaseHelper.instance;
+
+                          await db.insertData(entry.toMap()).then((_) {
+                            widget.onNewEntryAdded();
+                            setState(() {});
+                          });
                         }
+
+                        Navigator.pop(context);
                       },
                       child: Text('Submit'),
                       style: ElevatedButton.styleFrom(
