@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:flutter/services.dart';
 
 // class NewPage extends StatelessWidget {
 //   final _formKey = GlobalKey<FormState>();
@@ -37,17 +38,23 @@ class NewPage extends StatefulWidget {
 class _NewPageState extends State<NewPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Colors.blue,
-        title: Text(
-          'New Page',
-          style: TextStyle(color: Colors.white),
-        ),
+    return Theme(
+      data: ThemeData(
+        brightness: widget._theme! ? Brightness.dark : Brightness.light,
+        primaryColor: widget._theme! ? Colors.lightBlue[800] : Colors.blue,
       ),
-      body: Center(
-        child: MyJournalForm(),
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: Colors.blue,
+          title: Text(
+            'New Page',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        body: Center(
+          child: MyJournalForm(),
+        ),
       ),
     );
   }
@@ -68,6 +75,7 @@ class _MyJournalFormState extends State<MyJournalForm> {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     double hPadding = height * 0.01;
+    double wPadding = width * 0.05;
 
     // Build a Form widget using the _formKey created above.
     return SizedBox(
@@ -83,8 +91,7 @@ class _MyJournalFormState extends State<MyJournalForm> {
               child: TextFormField(
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  hintText: 'Enter your first name',
-                  labelText: 'First Name',
+                  labelText: 'Title',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -99,8 +106,7 @@ class _MyJournalFormState extends State<MyJournalForm> {
               child: TextFormField(
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  hintText: 'Enter your last name',
-                  labelText: 'Last Name',
+                  labelText: 'Body',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -115,33 +121,76 @@ class _MyJournalFormState extends State<MyJournalForm> {
               child: TextFormField(
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  hintText: 'Enter your email',
-                  labelText: 'Email',
+                  labelText: 'Rating (1-4)',
                 ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  TextInputFormatter.withFunction((oldValue, newValue) {
+                    if (newValue.text.isEmpty) {
+                      return newValue;
+                    }
+                    final int potentialNewValue = int.parse(newValue.text);
+                    if (potentialNewValue >= 1 && potentialNewValue <= 5) {
+                      return newValue;
+                    } else {
+                      return oldValue;
+                    }
+                  }),
+                ],
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  } else if (!value.contains('@')) {
-                    return 'Please enter a valid email address';
+                    return 'Please enter a number';
+                  } else {
+                    final int potentialValue = int.parse(value);
+                    if (potentialValue < 1 || potentialValue > 4) {
+                      return 'Please enter a number between 1 and 5';
+                    }
                   }
                   return null;
                 },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Validate returns true if the form is valid, or false otherwise.
-                  if (_formKey.currentState?.validate() == true) {
-                    // If the form is valid, display a Snackbar.
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Processing Data')),
-                    );
-                  }
-                },
-                child: Text('Submit'),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: wPadding, right: wPadding),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Validate returns true if the form is valid, or false otherwise.
+                      if (_formKey.currentState?.validate() == true) {
+                        // If the form is valid, display a Snackbar.
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Processing Data')),
+                        );
+                      }
+                    },
+                    child: Text('Submit'),
+                    style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder()),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: wPadding, right: wPadding),
+                  child: Align(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Validate returns true if the form is valid, or false otherwise.
+                        if (_formKey.currentState?.validate() == true) {
+                          // If the form is valid, display a Snackbar.
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Processing Data')),
+                          );
+                        }
+                      },
+                      child: Text('Submit'),
+                      style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder()),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

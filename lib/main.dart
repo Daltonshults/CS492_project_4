@@ -148,6 +148,7 @@ class _MyHomePage extends State<MyHomePage> {
                 CupertinoPageRoute(builder: (context) => NewPage(_isSwitched)),
               );
               // Add your onPressed code here!
+              setState(() {});
             },
             child: Icon(Icons.add),
             backgroundColor: Colors.blue,
