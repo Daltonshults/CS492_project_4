@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_4/helpers/databaseHelper.dart';
-import 'package:project_4/models/journalModel.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:project_4/helpers/database_helper.dart';
+import 'package:project_4/models/journal_model.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
@@ -55,14 +54,6 @@ class _MyJournalFormState extends State<MyJournalForm> {
   final titleController = TextEditingController();
   final bodyController = TextEditingController();
   final ratingController = TextEditingController();
-
-  @override
-  void dispose() {
-    titleController.dispose();
-    bodyController.dispose();
-    ratingController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,10 +118,9 @@ class _MyJournalFormState extends State<MyJournalForm> {
               await db.insertData(entry.toMap()).then((_) {
                 widget.onNewEntryAdded();
                 setState(() {});
+                Navigator.pop(context);
               });
             }
-
-            Navigator.pop(context);
           },
           style:
               ElevatedButton.styleFrom(shape: const RoundedRectangleBorder()),

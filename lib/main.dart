@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/cupertino.dart';
-import './views/FormPage.dart';
-import './helpers/databaseHelper.dart';
-import './models/journalModel.dart';
+import 'views/form_page.dart';
+import 'helpers/database_helper.dart';
+import 'models/journal_model.dart';
 
 final DatabaseHelper dbHelper = DatabaseHelper.instance;
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   MyAppState createState() => MyAppState();
 }
@@ -51,7 +53,7 @@ class MyAppState extends State<MyApp> {
       return MaterialApp(
         title: 'Journal App',
         theme: _themeData,
-        home: MyHomePage(_isSwitched),
+        home: const MyHomePage(),
       );
     }
   }
@@ -63,15 +65,12 @@ class MyAppState extends State<MyApp> {
 }
 
 class MyHomePage extends StatefulWidget {
-  bool? _isSwitched;
-
-  MyHomePage(this._isSwitched, {Key? key}) : super(key: key);
-
+  const MyHomePage({super.key});
   @override
-  _MyHomePage createState() => _MyHomePage();
+  MyHomePageState createState() => MyHomePageState();
 }
 
-class _MyHomePage extends State<MyHomePage> {
+class MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool? _isSwitched;
   List<JournalEntry> _journalEntries = [];
@@ -87,6 +86,7 @@ class _MyHomePage extends State<MyHomePage> {
         _journalEntries = entries;
       });
     });
+    selectedEntry = null;
     dbHelper.printAllRows();
   }
 
@@ -99,20 +99,25 @@ class _MyHomePage extends State<MyHomePage> {
     var screenWidth = MediaQuery.of(context).size.width;
 
     if (_isSwitched == null) {
-      return CircularProgressIndicator();
+      return const CircularProgressIndicator();
     } else if (_journalEntries.isEmpty) {
-      return Scaffold(
-        appBar: _journalAppBar("Welcome"),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(
-                child: Icon(Icons.book,
-                    size: MediaQuery.of(context).size.height * 0.4)),
-            Center(child: Text("Journal"))
-          ],
+      return Theme(
+        data: _isSwitched! ? ThemeData.dark() : ThemeData.light(),
+        child: Scaffold(
+          key: _scaffoldKey,
+          appBar: _journalAppBar("Welcome"),
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(
+                  child: Icon(Icons.book,
+                      size: MediaQuery.of(context).size.height * 0.4)),
+              const Center(child: Text("Journal"))
+            ],
+          ),
+          floatingActionButton: newEntryRoute(context),
+          endDrawer: _endDrawer(context),
         ),
-        floatingActionButton: newEntryRoute(context),
       );
     }
     return MaterialApp(
@@ -195,7 +200,16 @@ class _MyHomePage extends State<MyHomePage> {
       itemBuilder: (context, index) {
         final entry = _journalEntries[index];
         return ListTile(
-            title: Text(entry.title + " " + entry.date),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  entry.title,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Text(entry.date)
+              ],
+            ),
             onTap: () {
               setState(() {
                 selectedEntry = entry;
@@ -227,7 +241,7 @@ class _MyHomePage extends State<MyHomePage> {
       backgroundColor: Colors.blue,
       title: Text(
         title,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
       ),
       actions: <Widget>[
         IconButton(
@@ -244,13 +258,15 @@ class _MyHomePage extends State<MyHomePage> {
   Drawer _endDrawer(BuildContext context) {
     return Drawer(
       elevation: 100,
-      surfaceTintColor: Colors.white,
-      shadowColor: Colors.black,
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.1,
+            height: MediaQuery.of(context).orientation == Orientation.landscape
+                ? MediaQuery.of(context).size.height *
+                    0.2 // 20% of screen height in landscape mode
+                : MediaQuery.of(context).size.height *
+                    0.1, // 10% of screen height in portrait mode
             child: _drawerHeader(context),
           ),
           Row(
@@ -284,12 +300,12 @@ class _MyHomePage extends State<MyHomePage> {
           width * 0.025, // Right
           0), // bottom
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: Colors.blue,
       ),
       child: const Text(
         'Settings',
         style: TextStyle(
-          color: Colors.black,
+          color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 14,
         ),
@@ -306,8 +322,8 @@ class _MyHomePage extends State<MyHomePage> {
           _saveSwitchPreferences(value);
         });
       },
-      activeColor: Colors.amber,
-      activeTrackColor: Colors.amberAccent,
+      activeColor: Colors.blue,
+      activeTrackColor: Colors.grey,
     );
   }
 

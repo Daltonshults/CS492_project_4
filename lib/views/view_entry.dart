@@ -5,12 +5,12 @@ class ViewEntry extends StatelessWidget {
   final String body;
   final String date;
 
-  ViewEntry({
-    Key? key,
+  const ViewEntry({
+    super.key,
     required this.title,
     required this.body,
     required this.date,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class ViewEntry extends StatelessWidget {
         centerTitle: true,
         title: Text(
           date,
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
       ),
       body: viewEntryBody(),
@@ -29,7 +29,7 @@ class ViewEntry extends StatelessWidget {
 
   Padding viewEntryBody() {
     return Padding(
-      padding: EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -37,7 +37,8 @@ class ViewEntry extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title,
-                  style: TextStyle(fontWeight: FontWeight.w400, fontSize: 24)),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w400, fontSize: 24)),
               Text(body),
             ],
           ),

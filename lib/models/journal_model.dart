@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../views/ViewEntry.dart';
+import '../views/view_entry.dart';
 
 class JournalEntry extends StatelessWidget {
   final String title;
@@ -9,13 +9,13 @@ class JournalEntry extends StatelessWidget {
   final Function()? onHoriTap;
 
   const JournalEntry({
-    Key? key,
+    super.key,
     required this.title,
     required this.body,
     required this.rating,
     required this.date,
     this.onHoriTap,
-  }) : super(key: key);
+  });
 
   // Getters
   String get getTitle => title;
@@ -30,8 +30,8 @@ class JournalEntry extends StatelessWidget {
         children: [
           Row(children: [
             Flexible(
-                child:
-                    Text(title, style: TextStyle(fontWeight: FontWeight.bold))),
+                child: Text(title,
+                    style: const TextStyle(fontWeight: FontWeight.bold))),
           ]),
           Row(
             children: [Flexible(child: Text(date))],

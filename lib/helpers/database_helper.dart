@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:flutter/services.dart';
-import 'dart:io';
-import '../models/journalModel.dart';
+import '../models/journal_model.dart';
 
 class DatabaseHelper {
   static const _databaseName = "NotesData.db";
@@ -80,5 +78,10 @@ class DatabaseHelper {
     var res = await db.rawQuery(selectQuery);
     print('All rows:');
     res.forEach((row) => print(row));
+  }
+
+  Future<void> deleteAllRows() async {
+    final Database db = await database;
+    await db.rawDelete('DELETE FROM $table');
   }
 }
