@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 class ViewEntry extends StatelessWidget {
-  String title;
-  String body;
-  String date;
+  final String title;
+  final String body;
+  final String date;
 
   ViewEntry({
-    super.key,
+    Key? key,
     required this.title,
     required this.body,
     required this.date,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

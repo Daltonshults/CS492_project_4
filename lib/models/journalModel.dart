@@ -6,6 +6,7 @@ class JournalEntry extends StatelessWidget {
   final String body;
   final int rating;
   final String date;
+  final Function()? onHoriTap;
 
   const JournalEntry({
     Key? key,
@@ -13,6 +14,7 @@ class JournalEntry extends StatelessWidget {
     required this.body,
     required this.rating,
     required this.date,
+    this.onHoriTap,
   }) : super(key: key);
 
   // Getters

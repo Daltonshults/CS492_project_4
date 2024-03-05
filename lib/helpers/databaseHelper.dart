@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import '../models/journalModel.dart';
 
@@ -46,16 +45,6 @@ class DatabaseHelper {
     final Database db = await database;
 
     String insertQuery = await getQueryFromAsset('insert.sql');
-    print("INSERT QUERY");
-    print("INSERT QUERY");
-    print("INSERT QUERY");
-    print("INSERT QUERY");
-    print("INSERT QUERY");
-    print(insertQuery);
-    print("INSERT QUERY");
-    print("INSERT QUERY");
-    print("INSERT QUERY");
-    print("INSERT QUERY");
     await db.rawInsert(
         insertQuery, [data[title], data[body], data[rating], data[date]]);
   }
@@ -63,16 +52,7 @@ class DatabaseHelper {
   Future<List<JournalEntry>> queryAllRows() async {
     Database db = await instance.database;
     String selectQuery = await getQueryFromAsset('selectAll.sql');
-    print("select QUERY");
-    print("select QUERY");
-    print("select QUERY");
-    print("select QUERY");
-    print("select QUERY");
-    print(selectQuery);
-    print("select QUERY");
-    print("select QUERY");
-    print("select QUERY");
-    print("select QUERY");
+
     var res = await db.rawQuery(selectQuery);
     List<JournalEntry> entries = res.map((row) {
       return JournalEntry(

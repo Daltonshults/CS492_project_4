@@ -46,12 +46,13 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     if (_isSwitched == null) {
       return MaterialApp(home: Scaffold(body: CircularProgressIndicator()));
+    } else {
+      return MaterialApp(
+        title: 'Journal App',
+        theme: _themeData,
+        home: MyHomePage(_isSwitched),
+      );
     }
-    return MaterialApp(
-      title: 'Journal App',
-      theme: _themeData,
-      home: MyHomePage(_isSwitched!),
-    );
   }
 
   Future<bool> _loadSwitchPreferences() async {
@@ -73,7 +74,7 @@ class _MyHomePage extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool? _isSwitched;
   List<JournalEntry> _journalEntries = [];
-
+  JournalEntry? selectedEntry;
   @override
   void initState() {
     super.initState();
@@ -94,11 +95,13 @@ class _MyHomePage extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var screenWidth = MediaQuery.of(context).size.width;
+
     if (_isSwitched == null) {
       return CircularProgressIndicator();
     } else if (_journalEntries.isEmpty) {
       return Scaffold(
-        appBar: _journalAppBar(),
+        appBar: _journalAppBar("Welcome"),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -112,29 +115,92 @@ class _MyHomePage extends State<MyHomePage> {
       );
     }
     return MaterialApp(
-      theme: ThemeData(
-        // Define the default brightness and colors.
-        brightness: Brightness.light,
-        primaryColor: Colors.blue,
-      ),
-      darkTheme: ThemeData(
-        // Define the default brightness and colors for dark mode.
-        brightness: Brightness.dark,
-        primaryColor: Colors.lightBlue[800],
-      ),
-      themeMode: _isSwitched! ? ThemeMode.dark : ThemeMode.light,
-      home: Scaffold(
-          key: _scaffoldKey,
-          appBar: _journalAppBar(),
-          body: ListView.builder(
-            itemCount: _journalEntries.length, // Example item count
-            itemBuilder: (context, index) {
-              final entry = _journalEntries[index];
-              return entry;
-            },
+        theme: ThemeData(
+          // Define the default brightness and colors.
+          brightness: Brightness.light,
+          primaryColor: Colors.blue,
+        ),
+        darkTheme: ThemeData(
+          // Define the default brightness and colors for dark mode.
+          brightness: Brightness.dark,
+          primaryColor: Colors.lightBlue[800],
+        ),
+        themeMode: _isSwitched! ? ThemeMode.dark : ThemeMode.light,
+        home: screenWidth >= 800
+            ? landscapeView(context)
+            : portraitView(context));
+  }
+
+  Scaffold portraitView(BuildContext context) {
+    return Scaffold(
+        key: _scaffoldKey,
+        appBar: _journalAppBar("Journal Entries"),
+        body: portraitListBuilder(),
+        endDrawer: _endDrawer(context),
+        floatingActionButton: newEntryRoute(context));
+  }
+
+  ListView portraitListBuilder() {
+    return ListView.builder(
+      itemCount: _journalEntries.length, // Example item count
+      itemBuilder: (context, index) {
+        final entry = _journalEntries[index];
+        return entry;
+      },
+    );
+  }
+
+  Widget landscapeView(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: _journalAppBar("Journal Entries"),
+      body: Row(
+        children: [
+          Expanded(
+            // Add this
+            child: landscapeListBuilder(),
           ),
-          endDrawer: _endDrawer(context),
-          floatingActionButton: newEntryRoute(context)),
+          landscapeSummary(),
+        ],
+      ),
+      endDrawer: _endDrawer(context),
+      floatingActionButton: newEntryRoute(context),
+    );
+  }
+
+  Expanded landscapeSummary() {
+    return Expanded(
+        child: selectedEntry != null
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(selectedEntry!.title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w400, fontSize: 26)),
+                  Text(selectedEntry!.body,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                      ))
+                ],
+              )
+            : Text("No Entry Selected"));
+  }
+
+  ListView landscapeListBuilder() {
+    return ListView.builder(
+      itemCount: _journalEntries.length, // Example item count
+      itemBuilder: (context, index) {
+        final entry = _journalEntries[index];
+        return ListTile(
+            title: Text(entry.title + " " + entry.date),
+            onTap: () {
+              setState(() {
+                selectedEntry = entry;
+              });
+            });
+      },
     );
   }
 
@@ -147,23 +213,27 @@ class _MyHomePage extends State<MyHomePage> {
               builder: (context) => NewPage(_isSwitched, onNewEntryAdded)),
         );
       },
-      child: Icon(Icons.add),
       backgroundColor: Colors.blue,
-      shape: CircleBorder(),
+      foregroundColor: Colors.white,
+      shape: const CircleBorder(),
+      child: const Icon(Icons.add),
     );
   }
 
-  AppBar _journalAppBar() {
+  AppBar _journalAppBar(String title) {
     return AppBar(
       centerTitle: true,
       backgroundColor: Colors.blue,
-      title: const Text(
-        'Journal Entries',
+      title: Text(
+        title,
         style: TextStyle(color: Colors.white),
       ),
       actions: <Widget>[
         IconButton(
-          icon: const Icon(Icons.settings),
+          icon: const Icon(
+            Icons.settings,
+            color: Colors.white,
+          ),
           onPressed: _openEndDrawer, // Call _openEndDrawer when pressed
         ),
       ],
@@ -212,10 +282,10 @@ class _MyHomePage extends State<MyHomePage> {
           height * 0.005, // Top
           width * 0.025, // Right
           0), // bottom
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
       ),
-      child: Text(
+      child: const Text(
         'Settings',
         style: TextStyle(
           color: Colors.black,
