@@ -23,22 +23,25 @@ class ViewEntry extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style:
-                        TextStyle(fontWeight: FontWeight.w400, fontSize: 24)),
-                Text(body),
-              ],
-            ),
-          ],
-        ),
+      body: viewEntryBody(),
+    );
+  }
+
+  Padding viewEntryBody() {
+    return Padding(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: TextStyle(fontWeight: FontWeight.w400, fontSize: 24)),
+              Text(body),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -10,10 +10,10 @@ void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   bool? _isSwitched;
   ThemeData? _themeData;
 
@@ -45,7 +45,8 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     if (_isSwitched == null) {
-      return MaterialApp(home: Scaffold(body: CircularProgressIndicator()));
+      return const MaterialApp(
+          home: Scaffold(body: CircularProgressIndicator()));
     } else {
       return MaterialApp(
         title: 'Journal App',
@@ -64,7 +65,7 @@ class _MyAppState extends State<MyApp> {
 class MyHomePage extends StatefulWidget {
   bool? _isSwitched;
 
-  MyHomePage(this._isSwitched);
+  MyHomePage(this._isSwitched, {Key? key}) : super(key: key);
 
   @override
   _MyHomePage createState() => _MyHomePage();
@@ -185,7 +186,7 @@ class _MyHomePage extends State<MyHomePage> {
                       ))
                 ],
               )
-            : Text("No Entry Selected"));
+            : const Text("No Entry Selected"));
   }
 
   ListView landscapeListBuilder() {
